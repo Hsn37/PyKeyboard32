@@ -229,27 +229,27 @@ class Listener:
 	def __startListener(self, key):
 		Thread(target=self.__keyListener, args=(key,)).start()
 
-	def addKeyListener(self, key, onPress=None, onRelease=None):
+	def addKeyListener(self, keycode, onPress=None, onRelease=None):
 		'''
 		each key can have multiple callbacks. You can add them through this
 		'''
-		if any([x.code == key for x in self.keys]):
-			foundKey = self.__getKey(key)
+		if any([x.code == keycode for x in self.keys]):
+			foundKey = self.__getKey(keycode)
 			if onPress:
 				foundKey.onPress.append(onPress)
 			if onRelease:
 				foundKey.onRelease.append(onRelease)
 		else:
-			newKey = Key(key, onPress, onRelease)
+			newKey = Key(keycode, onPress, onRelease)
 			self.keys.append(newKey)
 			self.__startListener(newKey)
 
-	def removeKeyListener(self, key, funcToRemove=None):
+	def removeKeyListener(self, keycode, funcToRemove=None):
 		'''
 		if funcToRemove is None, then all the callback functions will be removed
 		'''
-		if any([x.code == key for x in self.keys]):
-			foundKey = self.__getKey(key)
+		if any([x.code == keycode for x in self.keys]):
+			foundKey = self.__getKey(keycode)
 			if funcToRemove is None:
 				foundKey.onPress = []
 				foundKey.onRelease = []
@@ -270,6 +270,9 @@ class Listener:
 			self.__startListener(x)
 
 	def isHeld(self, keyCode):
+		'''
+		checks if the given key is held right now or not. returns true/false
+		'''
 		for x in self.keys:
 			if keyCode == x.code:
 				return x.held
@@ -291,9 +294,15 @@ class Listener:
 class KeySimulator:
 
 	def Tap(self, keyCode, tapDelay=0.05):
+		'''
+		press, wait, and release the key. delay is according to the tapDelay
+		'''
 		Thread(target=self.__tap, args=(keyCode, tapDelay)).start()
 
 	def Type(self, string, tapDelay=0.05):
+		'''
+		Type the string. similar to calling Tap(keycode) for each individual key
+		'''
 		string = map(lambda y: y.lower(), list(string))
 
 		for x in string:
